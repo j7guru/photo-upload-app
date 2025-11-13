@@ -38,7 +38,7 @@ The dev server runs at http://localhost:3000. All credentials stay server-side; 
 ## Environment Variables
 | Name | Required | Description |
 | --- | --- | --- |
-| `BASEROW_API_TOKEN` | ✅ | Personal API token with access to the target table |
+| `BASEROW_API_TOKEN` | ✅ | Personal API token with access to the target table (paste the raw token; the app also trims a leading `Token ` prefix if you copy the entire header) |
 | `BASEROW_BASE_URL` | ✅ | Base URL for your Baserow instance (no trailing slash), e.g. `https://api.baserow.io` |
 | `BASEROW_TABLE_ID` | ✅ | Numeric table ID containing the fields described in the brief |
 
