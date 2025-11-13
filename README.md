@@ -23,13 +23,6 @@ Next.js 14 web app that connects to a Baserow database so warehouse or operation
 ```bash
 npm install
 
-# Create .env.local with your credentials
-cat <<EOF > .env.local
-BASEROW_API_TOKEN=xxxxxx
-BASEROW_BASE_URL=https://api.baserow.io
-BASEROW_TABLE_ID=12345
-EOF
-
 npm run dev
 ```
 
