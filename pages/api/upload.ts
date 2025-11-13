@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable, { type Fields, type Files, type File as FormidableFile } from 'formidable';
+import formidable from 'formidable';
 import axios from 'axios';
 import FormData from 'form-data';
 import fs from 'fs';
@@ -18,24 +18,43 @@ type UploadResponse = {
   photo: BaserowAttachment;
 };
 
+type FormidableFieldValue = string | string[] | undefined;
+type FormidableFields = Record<string, FormidableFieldValue>;
+type FormidableFile = {
+  filepath: string;
+  originalFilename?: string | null;
+  newFilename: string;
+  mimetype?: string | null;
+  size?: number;
+};
+type FormidableFiles = Record<string, FormidableFile | FormidableFile[]>;
+
 const parseForm = (
   req: NextApiRequest
-): Promise<{ fields: Fields; files: Files }> =>
+): Promise<{ fields: FormidableFields; files: FormidableFiles }> =>
   new Promise((resolve, reject) => {
     const form = formidable({
       multiples: false,
       maxFileSize: 15 * 1024 * 1024,
-      filter: ({ mimetype }) => Boolean(mimetype?.includes('jpeg') || mimetype?.includes('png'))
+      filter: ({ mimetype }: { mimetype?: string | null }) =>
+        Boolean(mimetype?.includes('jpeg') || mimetype?.includes('png'))
     });
 
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        reject(err);
-        return;
+    form.parse(
+      req,
+      (
+        err: Error | undefined,
+        fields: FormidableFields,
+        files: FormidableFiles
+      ) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve({ fields, files });
       }
-
-      resolve({ fields, files });
-    });
+    );
   });
 
 const ensureFile = (file?: FormidableFile | FormidableFile[]): FormidableFile => {
@@ -82,7 +101,7 @@ const updateRowPhoto = async (rowId: number, attachment: BaserowAttachment) => {
   );
 };
 
-const parseRecordId = (fields: Fields): number => {
+const parseRecordId = (fields: FormidableFields): number => {
   const raw = fields.recordId;
   const value = Array.isArray(raw) ? raw[0] : raw;
   const parsed = Number(value);
@@ -114,7 +133,7 @@ export default async function handler(
   } catch (error) {
     console.error('Upload failed', error);
     const message = isAxiosError(error)
-      ? error.response?.data?.error ?? error.message
+      ? ((error.response?.data as { error?: string } | undefined)?.error ?? error.message)
       : error instanceof Error
         ? error.message
         : 'Unexpected error';
