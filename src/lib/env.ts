@@ -24,9 +24,17 @@ export const getBaserowConfig = (): BaserowConfig => {
     throw missingEnv('BASEROW_TABLE_ID');
   }
 
+  const normalizeToken = (rawToken: string) => {
+    const trimmed = rawToken.trim();
+    if (trimmed.toLowerCase().startsWith('token ')) {
+      return trimmed.slice(6).trim();
+    }
+    return trimmed;
+  };
+
   return {
-    token,
-    baseUrl: baseUrl.replace(/\/$/, ''),
-    tableId
+    token: normalizeToken(token),
+    baseUrl: baseUrl.trim().replace(/\/$/, ''),
+    tableId: tableId.trim()
   };
 };
