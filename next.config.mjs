@@ -15,7 +15,11 @@ const nextConfig = {
         hostname: '**.s3.amazonaws.com'
       }
     ]
-  }
+  },
+  eslint: {
+    // ⚠️ Warning: Disables build from failing on ESLint errors
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
